@@ -2,10 +2,12 @@ import { useEffect } from "react";
 
 function Splash({ onFinish }) {
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       onFinish();
     }, 2000);
-  }, []);
+
+    return () => clearTimeout(timer);
+  }, [onFinish]); // ✅ FIXED
 
   return (
     <div style={styles.page}>
