@@ -6,7 +6,7 @@ function Leaderboard() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/result/leaderboard/top")
+      .get("https://quizify-mern-app-production.up.railway.app/api/result/leaderboard/top")
       .then((res) => setData(res.data))
       .catch((err) => console.log(err));
   }, []);

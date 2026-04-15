@@ -14,7 +14,7 @@ function Login() {
     try {
       setLoading(true);
 
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post("https://quizify-mern-app-production.up.railway.app/api/auth/login", {
         email,
         password,
       });

@@ -10,7 +10,7 @@ function QuizList() {
   // 🔄 Fetch quizzes
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/quiz")
+      .get("https://quizify-mern-app-production.up.railway.app/api/quiz")
       .then((res) => setQuizzes(res.data))
       .catch((err) => console.log(err));
   }, []);

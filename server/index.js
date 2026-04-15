@@ -1,12 +1,19 @@
+require("dotenv").config(); // ✅ load env
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+// ✅ CORS (important for frontend)
+app.use(cors({
+  origin: "*"
+}));
+
 app.use(express.json());
 
+// ✅ Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/quiz", require("./routes/quizRoutes"));
 app.use("/api/result", require("./routes/resultRoutes"));
@@ -18,12 +25,12 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log(err));
 
-// test route
+// ✅ Test route
 app.get("/", (req, res) => {
   res.send("API Running 🚀");
 });
 
-// ✅ Dynamic port for Railway
+// ✅ Railway dynamic port
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
