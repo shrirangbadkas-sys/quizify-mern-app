@@ -7,7 +7,7 @@ function Splash({ onFinish }) {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [onFinish]); // ✅ FIXED
+  }, [onFinish]); // ✅ IMPORTANT FIX
 
   return (
     <div style={styles.page}>
