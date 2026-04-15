@@ -1,0 +1,48 @@
+/* 🌌 GLOBAL */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #1a0033, #3a0ca3);
+  margin: 0;
+  color: white;
+}
+
+/* 🔝 NAVBAR */
+.navbar-custom {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  padding: 12px 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  color: white;
+}
+
+/* 🧾 CARDS (GLASS EFFECT) */
+.card {
+  border-radius: 15px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  color: white;
+  transition: 0.3s;
+}
+
+/* Hover effect */
+.card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* 🔘 BUTTONS */
+.btn-primary {
+  background: linear-gradient(90deg, #9b5de5, #5a189a);
+  border: none;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #7b2cbf, #3c096c);
+}
+
+/* ✨ TEXT */
+.text-muted {
+  color: #ccc !important;
+}
