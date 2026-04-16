@@ -1,6 +1,7 @@
-const API = "https://quizify-mern-app-production.up.railway.app";
+import axios from "axios";
+
+const API = axios.create({
+  baseURL: "http://localhost:5000", // 🔥 change later to Render URL
+});
 
 export default API;
-import API from "../api";
-
-axios.get(`${API}/api/quiz`);

@@ -3,67 +3,85 @@ import axios from "axios";
 
 function Leaderboard() {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios
-      .get("https://quizify-mern-app-production.up.railway.app/api/result/leaderboard/top")
-      .then((res) => setData(res.data))
-      .catch((err) => console.log(err));
+      .get("http://localhost:5000/api/result/leaderboard/top")
+      .then((res) => {
+        console.log("Leaderboard:", res.data); // 🔍 DEBUG
+        setData(res.data);
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
     <div style={styles.page}>
-
       <div style={styles.container}>
-
         <h2 style={styles.title}>🏆 Leaderboard</h2>
 
-        {data.map((user, index) => (
-          <div
-            key={user._id}
-            style={{
-              ...styles.card,
-              ...(index === 0 && styles.gold),
-              ...(index === 1 && styles.silver),
-              ...(index === 2 && styles.bronze),
-            }}
-          >
-            {/* 🔥 FLEX ROW */}
-            <div style={styles.row}>
+        {/* 🔄 LOADING */}
+        {loading && (
+          <p style={{ textAlign: "center", color: "#ccc" }}>
+            Loading leaderboard...
+          </p>
+        )}
 
-              {/* 👤 AVATAR */}
-              <div style={styles.avatar}>
-                {user.userId?.name?.charAt(0).toUpperCase() || "U"}
+        {/* ❌ EMPTY */}
+        {!loading && data.length === 0 && (
+          <p style={{ textAlign: "center", color: "#ccc" }}>
+            No results yet 😢
+          </p>
+        )}
+
+        {/* ✅ DATA */}
+        {!loading &&
+          data.map((user, index) => {
+            const name = user.userId?.name || "Unknown";
+            const quiz = user.quizId?.title || "Quiz";
+            const score = user.score ?? 0;
+
+            return (
+              <div
+                key={user._id || index}
+                style={{
+                  ...styles.card,
+                  ...(index === 0 && styles.gold),
+                  ...(index === 1 && styles.silver),
+                  ...(index === 2 && styles.bronze),
+                }}
+              >
+                <div style={styles.row}>
+                  {/* 👤 AVATAR */}
+                  <div style={styles.avatar}>
+                    {name.charAt(0).toUpperCase()}
+                  </div>
+
+                  {/* 🧾 INFO */}
+                  <div style={styles.info}>
+                    <h4 style={styles.name}>
+                      {index === 0
+                        ? "🥇"
+                        : index === 1
+                        ? "🥈"
+                        : index === 2
+                        ? "🥉"
+                        : `#${index + 1}`}{" "}
+                      {name}
+                    </h4>
+
+                    <p style={styles.text}>📚 {quiz}</p>
+
+                    <p style={styles.score}>
+                      🎯 Score: {score}
+                    </p>
+                  </div>
+                </div>
               </div>
-
-              {/* 🧾 USER INFO */}
-              <div style={styles.info}>
-                <h4 style={styles.name}>
-                  {index === 0
-                    ? "🥇"
-                    : index === 1
-                    ? "🥈"
-                    : index === 2
-                    ? "🥉"
-                    : `#${index + 1}`}{" "}
-                  {user.userId?.name || "User"}
-                </h4>
-
-                <p style={styles.text}>
-                  📚 {user.quizId?.title || "Quiz"}
-                </p>
-
-                <p style={styles.score}>
-                  🎯 Score: {user.score}
-                </p>
-              </div>
-
-            </div>
-          </div>
-        ))}
-
+            );
+          })}
       </div>
-
     </div>
   );
 }
@@ -96,7 +114,6 @@ const styles = {
     transition: "0.3s",
   },
 
-  // 🥇🥈🥉 TOP 3 STYLES
   gold: {
     border: "2px solid gold",
     background: "rgba(255,215,0,0.15)",
@@ -112,14 +129,12 @@ const styles = {
     background: "rgba(205,127,50,0.15)",
   },
 
-  // 🔥 FLEX ROW
   row: {
     display: "flex",
     alignItems: "center",
     gap: "15px",
   },
 
-  // 👤 AVATAR
   avatar: {
     width: "50px",
     height: "50px",

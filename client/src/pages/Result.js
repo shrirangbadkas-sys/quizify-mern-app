@@ -4,59 +4,84 @@ function Result() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const data = location.state;
+  const data = location.state || {};
 
-  if (!data) {
-    return <h3 style={{ textAlign: "center" }}>No Result Found</h3>;
+  const score = data.score || 0;
+  const total = data.total || 0;
+  const percentage = data.percentage || 0;
+
+  const details = Array.isArray(data.details) ? data.details : [];
+
+  if (!location.state) {
+    return (
+      <div style={styles.page}>
+        <h3 style={{ textAlign: "center", color: "white" }}>
+          No Result Found 😢
+        </h3>
+
+        <div style={{ textAlign: "center", marginTop: "20px" }}>
+          <button onClick={() => navigate("/quizzes")} style={styles.button}>
+            Go to Quizzes
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div style={styles.page}>
-
       <div style={styles.container}>
 
-        {/* 🎉 SCORE CARD */}
+        {/* 🎉 SCORE */}
         <div style={styles.scoreCard}>
           <h2>🎉 Quizify Result</h2>
-          <h1>{data.score} / {data.total}</h1>
-          <p>{data.percentage}%</p>
+          <h1>{score} / {total}</h1>
+          <p>{percentage}%</p>
         </div>
 
-        {/* 📊 DETAILS */}
-        {data.details.map((q, i) => (
-          <div key={i} style={styles.card}>
+        {/* 📋 DETAILS */}
+        <h3>📋 Answer Review</h3>
 
-            <h5>{i + 1}. {q.question}</h5>
+        {details.length === 0 ? (
+          <p style={{ textAlign: "center" }}>No details available</p>
+        ) : (
+          details.map((q, i) => (
+            <div key={i} style={styles.card}>
 
-            <p>
-              Your:{" "}
-              <span style={{
+              <h5>{i + 1}. {q.question}</h5>
+
+              <p>
+                Your Answer:{" "}
+                <span style={{
+                  color: q.isCorrect ? "#00ffae" : "#ff4d6d",
+                  fontWeight: "bold"
+                }}>
+                  {q.userAnswer}
+                </span>
+              </p>
+
+              <p style={{ color: "#ccc" }}>
+                Correct Answer: {q.correctAnswer}
+              </p>
+
+              <p style={{
                 color: q.isCorrect ? "#00ffae" : "#ff4d6d",
                 fontWeight: "bold"
               }}>
-                {q.userAnswer}
-              </span>
-            </p>
+                {q.isCorrect ? "✔ Correct" : "✘ Wrong"}
+              </p>
 
-            <p style={{ color: "#ccc" }}>
-              Correct: {q.correctAnswer}
-            </p>
+            </div>
+          ))
+        )}
 
-          </div>
-        ))}
-
-        {/* 🔙 BUTTON */}
         <div style={{ textAlign: "center" }}>
-          <button
-            onClick={() => navigate("/quizzes")}
-            style={styles.button}
-          >
+          <button onClick={() => navigate("/quizzes")} style={styles.button}>
             Back to Home
           </button>
         </div>
 
       </div>
-
     </div>
   );
 }
@@ -68,30 +93,23 @@ const styles = {
     padding: "40px",
     color: "white",
   },
-
   container: {
     maxWidth: "800px",
     margin: "auto",
   },
-
   scoreCard: {
     background: "rgba(255,255,255,0.1)",
-    backdropFilter: "blur(12px)",
     borderRadius: "20px",
     padding: "30px",
     textAlign: "center",
     marginBottom: "30px",
-    boxShadow: "0 8px 30px rgba(0,0,0,0.3)"
   },
-
   card: {
     background: "rgba(255,255,255,0.08)",
-    backdropFilter: "blur(10px)",
-    borderRadius: "15px",
     padding: "20px",
+    borderRadius: "15px",
     marginBottom: "15px",
   },
-
   button: {
     marginTop: "20px",
     padding: "12px 25px",

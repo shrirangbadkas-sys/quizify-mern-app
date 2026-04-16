@@ -2,6 +2,11 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+// ✅ CHANGE THIS BASE URL WHEN DEPLOYED
+const API_URL = "http://localhost:5000"; 
+// later replace with:
+// const API_URL = "https://your-render-backend-url.com";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,19 +18,24 @@ function Login() {
   const loginUser = async () => {
     try {
       setLoading(true);
-
-      const res = await axios.post("https://quizify-mern-app-production.up.railway.app/api/auth/login", {
+  
+      const res = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
       });
-
-      // ✅ STORE USER DATA
-      localStorage.setItem("userId", res.data.user._id);
-      localStorage.setItem("userName", res.data.user.name);
-
+  
+      console.log("LOGIN:", res.data); // 🔍 debug
+  
+      // ✅ STORE FULL USER (IMPORTANT)
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+  
+      // ✅ STORE TOKEN (for future auth)
+      localStorage.setItem("token", res.data.token);
+  
       navigate("/quizzes");
-
+  
     } catch (err) {
+      console.log(err);
       alert(err.response?.data?.msg || "Invalid credentials");
     } finally {
       setLoading(false);
@@ -42,7 +52,7 @@ function Login() {
       {/* 💎 CARD */}
       <div style={styles.card}>
 
-        <h2 style={styles.title}>⚡Quizify⚡ </h2>
+        <h2 style={styles.title}>⚡Quizify⚡</h2>
         <p style={styles.subtitle}>Sharpen your mind daily</p>
 
         {/* 📧 EMAIL */}
@@ -52,11 +62,9 @@ function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           style={styles.input}
-          onFocus={(e) => e.target.style.border = "1px solid #9b5de5"}
-          onBlur={(e) => e.target.style.border = "1px solid rgba(255,255,255,0.2)"}
         />
 
-        {/* 🔒 PASSWORD WITH TOGGLE */}
+        {/* 🔒 PASSWORD */}
         <div style={{ position: "relative" }}>
           <input
             type={showPass ? "text" : "password"}
@@ -64,8 +72,6 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={styles.input}
-            onFocus={(e) => e.target.style.border = "1px solid #9b5de5"}
-            onBlur={(e) => e.target.style.border = "1px solid rgba(255,255,255,0.2)"}
           />
 
           <span
@@ -81,7 +87,7 @@ function Login() {
           {loading ? "Logging in..." : "Login 🚀"}
         </button>
 
-        {/* 🔗 SIGNUP LINK */}
+        {/* 🔗 SIGNUP */}
         <p style={{ marginTop: "12px", color: "#ccc" }}>
           Don’t have an account?{" "}
           <span
@@ -108,7 +114,6 @@ const styles = {
     overflow: "hidden",
   },
 
-  // 🔮 Glow circles
   bgCircle1: {
     position: "absolute",
     width: "350px",
@@ -131,7 +136,6 @@ const styles = {
     filter: "blur(120px)",
   },
 
-  // 💎 Card
   card: {
     width: "350px",
     padding: "30px",
@@ -164,7 +168,6 @@ const styles = {
     outline: "none",
     background: "rgba(255,255,255,0.1)",
     color: "white",
-    transition: "0.3s",
   },
 
   eye: {

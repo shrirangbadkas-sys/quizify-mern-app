@@ -49,30 +49,32 @@ function Quiz() {
 
   // Submit
   const submitQuiz = async () => {
-    const userId = localStorage.getItem("userId");
+  const user = JSON.parse(localStorage.getItem("user")); // ✅ FIX
 
-    if (!userId) {
-      alert("Please login first!");
-      return;
-    }
+  if (!user || !user._id) {
+    alert("Please login first!");
+    return;
+  }
 
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/result/submit",
-        {
-          userId,
-          quizId: id,
-          answers,
-        }
-      );
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/result/submit",
+      {
+        userId: user._id,   // ✅ FIXED
+        quizId: id,
+        answers,
+      }
+    );
 
-      navigate("/result", { state: res.data });
+    console.log("SUBMIT RESPONSE:", res.data);
 
-    } catch (err) {
-      console.log("ERROR:", err.response?.data);
-      alert("Error submitting quiz");
-    }
-  };
+    navigate("/result", { state: res.data });
+
+  } catch (err) {
+    console.log("ERROR:", err.response?.data);
+    alert("Error submitting quiz");
+  }
+};
 
   // Progress
   const progress =

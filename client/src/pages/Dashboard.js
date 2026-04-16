@@ -2,32 +2,48 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function Dashboard() {
-  const [results, setResults] = useState([]);
+  const [stats, setStats] = useState({
+    totalQuizzes: 0,
+    totalScore: 0,
+    avgScore: 0,
+    bestScore: 0,
+    streak: 0,
+  });
 
-  const userId = localStorage.getItem("userId");
+  const [loading, setLoading] = useState(true);
+
+  // ✅ GET USER FROM LOCALSTORAGE
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?._id;
 
   useEffect(() => {
+    if (!userId) {
+      console.log("❌ No userId found");
+      setLoading(false);
+      return;
+    }
+
     axios
-      .get(`http://localhost:5000/api/result/${userId}`)
-      .then((res) => setResults(res.data))
-      .catch((err) => console.log(err));
+      .get(`http://localhost:5000/api/result/stats/${userId}`)
+      .then((res) => {
+        console.log("✅ Dashboard Stats:", res.data);
+        setStats(res.data);
+      })
+      .catch((err) => {
+        console.log("❌ Dashboard Error:", err);
+      })
+      .finally(() => setLoading(false));
   }, [userId]);
 
-  const totalQuizzes = results.length;
-  const totalScore = results.reduce((sum, r) => sum + r.score, 0);
-  const totalQuestions = results.reduce((sum, r) => sum + r.total, 0);
+  const {
+    totalQuizzes,
+    totalScore,
+    avgScore,
+    bestScore,
+    streak,
+  } = stats;
 
-  const avgScore = totalQuizzes
-    ? (totalScore / totalQuizzes).toFixed(1)
-    : 0;
-
-  const percentage = totalQuestions
-    ? ((totalScore / totalQuestions) * 100).toFixed(0)
-    : 0;
-
-  const bestScore = results.length
-    ? Math.max(...results.map((r) => r.score))
-    : 0;
+  const percentage = avgScore ? (avgScore * 100) / 10 : 0;
 
   // 🎯 LEVEL SYSTEM
   const getLevel = () => {
@@ -36,6 +52,14 @@ function Dashboard() {
     return "🌱 Beginner";
   };
 
+  if (loading) {
+    return (
+      <div style={styles.page}>
+        <h2>Loading Dashboard...</h2>
+      </div>
+    );
+  }
+
   return (
     <div style={styles.page}>
       <h2 style={styles.title}>📊 Quizify Dashboard</h2>
@@ -43,51 +67,29 @@ function Dashboard() {
       {/* 🔥 STATS */}
       <div style={styles.stats}>
 
-        <div
-          style={styles.card}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
+        <div style={styles.card}>
           <h3>Total Quizzes</h3>
           <p>{totalQuizzes}</p>
         </div>
 
-        <div
-          style={styles.card}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
+        <div style={styles.card}>
           <h3>Total Score</h3>
           <p>{totalScore}</p>
         </div>
 
-        <div
-          style={styles.card}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
+        <div style={styles.card}>
           <h3>Average Score</h3>
           <p>{avgScore}</p>
         </div>
 
-        {/* 🏆 BEST SCORE */}
-        <div
-          style={styles.card}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
+        <div style={styles.card}>
           <h3>🏆 Best Score</h3>
           <p>{bestScore}</p>
         </div>
 
-        {/* 🔥 STREAK */}
-        <div
-          style={styles.card}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
+        <div style={styles.card}>
           <h3>🔥 Streak</h3>
-          <p>{results.length} Plays</p>
+          <p>{streak} Plays</p>
         </div>
 
       </div>
@@ -105,34 +107,9 @@ function Dashboard() {
           ></div>
         </div>
 
-        <p>{percentage}% Accuracy</p>
+        <p>{percentage.toFixed(1)}% Accuracy</p>
         <p style={styles.level}>{getLevel()}</p>
       </div>
-
-      {/* 📜 HISTORY */}
-      <h3 style={{ marginTop: "30px" }}>📜 Quiz Activity</h3>
-
-      {results.length === 0 && (
-        <p style={{ color: "#ccc" }}>
-          🚀 Start your first quiz to see stats!
-        </p>
-      )}
-
-      <div style={styles.timeline}>
-        {results.map((r) => (
-          <div key={r._id} style={styles.timelineCard}>
-            <div style={styles.dot}></div>
-
-            <div>
-              <h4>{r.quizId?.title}</h4>
-              <p>
-                Score: {r.score}/{r.total}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
     </div>
   );
 }
@@ -142,6 +119,8 @@ const styles = {
     padding: "40px",
     color: "white",
     textAlign: "center",
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #1a0033, #3a0ca3)",
   },
 
   title: {
@@ -162,8 +141,6 @@ const styles = {
     width: "180px",
     backdropFilter: "blur(10px)",
     boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-    transition: "0.3s",
-    cursor: "pointer",
   },
 
   performance: {
@@ -193,28 +170,6 @@ const styles = {
     marginTop: "10px",
     fontWeight: "bold",
     color: "#cdb4ff",
-  },
-
-  timeline: {
-    maxWidth: "500px",
-    margin: "20px auto",
-  },
-
-  timelineCard: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-    background: "rgba(255,255,255,0.08)",
-    padding: "12px",
-    borderRadius: "10px",
-    marginBottom: "10px",
-  },
-
-  dot: {
-    width: "10px",
-    height: "10px",
-    borderRadius: "50%",
-    background: "#9b5de5",
   },
 };
 
